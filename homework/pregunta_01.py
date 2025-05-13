@@ -4,6 +4,9 @@
 """
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
+from pathlib import Path
+import pandas as pd
+from zipfile import ZipFile
 
 
 def pregunta_01():
@@ -71,3 +74,17 @@ def pregunta_01():
 
 
     """
+    with ZipFile("files/input.zip", "r") as z:
+        z.extractall("files/")
+
+    indir = Path("files/input")
+    outdir = Path("files/output")
+    outdir.mkdir(parents=True, exist_ok=True)
+    for dataset in ["train", "test"]:
+        phrases = []
+        for target_path in (indir / dataset).iterdir():
+            for file_path in target_path.iterdir():
+                phrase = file_path.read_text()
+                phrases.append((phrase, target_path.name))
+        df = pd.DataFrame(phrases, columns=["phrase", "target"])
+        df.to_csv(outdir / f"{dataset}_dataset.csv")
